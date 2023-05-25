@@ -1,5 +1,7 @@
 # Change Log Generator
 
+![changelogpic](https://github.com/SippingSizzurp/changelogGEN/assets/111225194/df3fe6eb-4d09-4cfa-93a4-ee75833520ac)
+
 The Change Log Generator is a lightweight desktop application designed to assist users in creating and posting change logs to Discord. It provides a simple and intuitive user interface for entering additions, removals, changes, and fixes in a change log format. The application allows users to generate a change log, copy it to the clipboard, and post it directly to a Discord webhook.
 
 The Change Log Generator is built using Python and utilizes the tkinter library for the graphical user interface (GUI). It also relies on the requests library for making HTTP requests to the Discord webhook. The application provides an easy way for software developers, project managers, and teams to document and share updates, improvements, and bug fixes with their audience.
