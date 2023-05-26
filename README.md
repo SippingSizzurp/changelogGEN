@@ -1,6 +1,7 @@
 # Change Log Generator
 
-![image](https://github.com/SippingSizzurp/changelogGEN/assets/111225194/74aff99c-5750-498c-8dac-c5526c80075d)
+![image](https://github.com/SippingSizzurp/changelogGEN/assets/111225194/e2df3040-d7f7-4722-87f6-9b7316ddb153)
+
 
 The Change Log Generator is a lightweight desktop application designed to assist users in creating and posting change logs to Discord. It provides a simple and intuitive user interface for entering additions, removals, changes, and fixes in a change log format. The application allows users to generate a change log, copy it to the clipboard, and post it directly to a Discord webhook.
 
