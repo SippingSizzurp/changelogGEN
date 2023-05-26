@@ -1,44 +1,30 @@
-import tkinter as tk
-from tkinter import ttk
-import tkinter.messagebox as messagebox
+from pathlib import Path
 import datetime
-import importlib
-import subprocess
-
-# List of required packages
-required_packages = ['tkinter', 'requests']
-
-# Check if each required package is installed
-missing_packages = []
-for package in required_packages:
-    try:
-        importlib.import_module(package)
-    except ImportError:
-        missing_packages.append(package)
-
-# Install missing packages using pip
-if missing_packages:
-    print("Installing missing packages...")
-    for package in missing_packages:
-        subprocess.check_call(['pip', 'install', package])
-    print("Missing packages installed successfully.")
-    
+import tkinter.messagebox as messagebox
+from tkinter import *
+import tkinter as tk
 import requests
 
-change_log_entries = []  # List to store change log entries
+
+ASSETS_PATH = Path(r"./assets/frame0")
+
+
+def relative_to_assets(path: str) -> Path:
+    return ASSETS_PATH / Path(path)
+
+
 webhook_file = "webhook.txt"  # File to store the Discord webhook URL
 
 
 def create_change_log():
-    added_text = added_entry.get("1.0", tk.END).strip()
-    removed_text = removed_entry.get("1.0", tk.END).strip()
-    changed_text = changed_entry.get("1.0", tk.END).strip()
-    fixed_text = fixed_entry.get("1.0", tk.END).strip()
+    added_text = entry_2.get("1.0", tk.END).strip()
+    removed_text = entry_3.get("1.0", tk.END).strip()
+    changed_text = entry_4.get("1.0", tk.END).strip()
+    fixed_text = entry_5.get("1.0", tk.END).strip()
 
-    change_log_entries.clear()  # Clear the existing change log entries
+    change_log_entries = [f"# CHANGE LOG {datetime.date.today()}\n"]  # Create an empty list to store the change log entries
 
     # Add the header with the current date
-    change_log_entries.append(f"# CHANGE LOG {datetime.date.today()}\n")
 
     if added_text:
         change_log_entries.append("- ### __ADDED__")
@@ -58,19 +44,20 @@ def create_change_log():
         change_log_entries.append('')
 
     # Display the entire change log in the text widget
-    change_log_text.delete("1.0", tk.END)
-    change_log_text.insert(tk.END, '\n'.join(change_log_entries))
+    entry_1.delete("1.0", tk.END)
+    entry_1.insert(tk.END, '\n'.join(change_log_entries))
 
 
 def copy_to_clipboard():
-    change_log = change_log_text.get("1.0", tk.END)
-    root.clipboard_clear()
-    root.clipboard_append(change_log)
+    change_log = entry_1.get("1.0", tk.END)
+    window.clipboard_clear()
+    window.clipboard_append(change_log)
     messagebox.showinfo("Copy to Clipboard", "Change Log copied to clipboard.")
 
+
 def post_to_discord_webhook():
-    webhook_url = webhook_entry.get().strip()
-    change_log = change_log_text.get("1.0", tk.END)
+    webhook_url = entry_6.get().strip()
+    change_log = entry_1.get("1.0", tk.END)
 
     if not webhook_url:
         messagebox.showwarning("Missing Webhook URL", "Please enter a valid Discord webhook URL.")
@@ -92,6 +79,7 @@ def save_webhook_url(url):
     with open(webhook_file, "w") as file:
         file.write(url)
 
+
 def load_webhook_url():
     try:
         with open(webhook_file, "r") as file:
@@ -100,69 +88,245 @@ def load_webhook_url():
         return ""
 
 
-root = tk.Tk()
-root.title("Change Log")
-root.configure(bg='#333333')  # Set the background color
+window = Tk()
 
-# Configure column and row weights for resizing
-root.columnconfigure(0, weight=1)
-root.columnconfigure(1, weight=1)
-root.rowconfigure(7, weight=1)
-
-# Define dark mode color scheme
-style = ttk.Style()
-style.theme_use('clam')
-style.configure('TLabel', background='#333333', foreground='white')
-style.configure('TEntry', fieldbackground='#1f1f1f', foreground='white')
-style.configure('TButton', background='#1f1f1f', foreground='white')
-style.configure('TText', background='#1f1f1f', foreground='white')
-
-# Create the entry boxes
-added_label = ttk.Label(root, text="ADDED")
-added_label.grid(row=0, column=0, pady=5, padx=10, sticky="w")
-added_entry = tk.Text(root, width=30, height=2, bg='#1f1f1f', fg='white')
-added_entry.grid(row=1, column=0, padx=10, ipady=40, sticky="we")
-
-removed_label = ttk.Label(root, text="REMOVED")
-removed_label.grid(row=2, column=0, pady=5, padx=10, sticky="w")
-removed_entry = tk.Text(root, width=30, height=2, bg='#1f1f1f', fg='white')
-removed_entry.grid(row=3, column=0, padx=10, ipady=40, sticky="we")
-
-changed_label = ttk.Label(root, text="CHANGED")
-changed_label.grid(row=4, column=0, pady=5, padx=10, sticky="w")
-changed_entry = tk.Text(root, width=30, height=2, bg='#1f1f1f', fg='white')
-changed_entry.grid(row=5, column=0, padx=10, ipady=40, sticky="we")
-
-fixed_label = ttk.Label(root, text="FIXED")
-fixed_label.grid(row=6, column=0, pady=5, padx=10, sticky="w")
-fixed_entry = tk.Text(root, width=30, height=2, bg='#1f1f1f', fg='white')
-fixed_entry.grid(row=7, column=0, padx=10, ipady=40, sticky="we")
-
-# Create the change log text widget
-change_log_text = tk.Text(root, width=40, height=20, bg='#1f1f1f', fg='white')
-change_log_text.grid(row=0, column=1, rowspan=8, padx=10, pady=10, ipady=100, sticky="nsew")
+window.geometry("800x631")
+window.configure(bg="#292B2F")
+window.title("Change-Log Generator")
 
 
-# Create the Discord webhook URL entry
-webhook_label = ttk.Label(root, text="Discord Webhook URL")
-webhook_label.grid(row=8, column=0, pady=5, padx=10, sticky="w")
-webhook_entry = ttk.Entry(root, width=30)
-webhook_entry.grid(row=8, column=1, padx=10, ipadx=100, sticky="we")
+canvas = Canvas(
+    window,
+    bg="#292B2F",
+    height=631,
+    width=800,
+    bd=0,
+    highlightthickness=0,
+    relief="ridge"
+)
 
-# Load the webhook URL and populate the entry if available
+canvas.place(x=0, y=0)
+canvas.create_rectangle(
+    0.0,
+    0.0,
+    231.0,
+    631.0,
+    fill="#2F3136",
+    outline="")
+
+entry_image_1 = PhotoImage(
+    file=relative_to_assets("entry_1.png"))
+entry_bg_1 = canvas.create_image(
+    519.5,
+    216.5,
+    image=entry_image_1
+)
+entry_1 = Text(
+    bd=0,
+    bg="#40444B",
+    fg="white",
+    highlightthickness=0
+)
+entry_1.place(
+    x=269.0,
+    y=32.0,
+    width=501.0,
+    height=367.0
+)
+
+entry_image_2 = PhotoImage(
+    file=relative_to_assets("entry_2.png"))
+entry_bg_2 = canvas.create_image(
+    115.0,
+    88.0,
+    image=entry_image_2
+)
+entry_2 = Text(
+    bd=0,
+    bg="#40444B",
+    fg="white",
+    highlightthickness=0
+)
+entry_2.place(
+    x=19.0,
+    y=32.0,
+    width=192.0,
+    height=110.0
+)
+
+entry_image_3 = PhotoImage(
+    file=relative_to_assets("entry_3.png"))
+entry_bg_3 = canvas.create_image(
+    115.0,
+    556.0,
+    image=entry_image_3
+)
+entry_3 = Text(
+    bd=0,
+    bg="#40444B",
+    fg="white",
+    highlightthickness=0
+)
+entry_3.place(
+    x=19.0,
+    y=500.0,
+    width=192.0,
+    height=110.0
+)
+
+entry_image_4 = PhotoImage(
+    file=relative_to_assets("entry_4.png"))
+entry_bg_4 = canvas.create_image(
+    115.0,
+    244.0,
+    image=entry_image_4
+)
+entry_4 = Text(
+    bd=0,
+    bg="#40444B",
+    fg="white",
+    highlightthickness=0
+)
+entry_4.place(
+    x=19.0,
+    y=188.0,
+    width=192.0,
+    height=110.0
+)
+
+entry_image_5 = PhotoImage(
+    file=relative_to_assets("entry_5.png"))
+entry_bg_5 = canvas.create_image(
+    115.0,
+    400.0,
+    image=entry_image_5
+)
+entry_5 = Text(
+    bd=0,
+    bg="#40444B",
+    fg="white",
+    highlightthickness=0
+)
+entry_5.place(
+    x=19.0,
+    y=344.0,
+    width=192.0,
+    height=110.0,
+)
+
+canvas.create_text(
+    12.0,
+    12.0,
+    anchor="nw",
+    text="ADDED",
+    fill="#FFFFFF",
+    font=("Inter", 15 * -1)
+)
+
+canvas.create_text(
+    12.0,
+    168.0,
+    anchor="nw",
+    text="REMOVED",
+    fill="#FFFFFF",
+    font=("Inter", 15 * -1)
+)
+
+canvas.create_text(
+    12.0,
+    324.0,
+    anchor="nw",
+    text="CHANGED",
+    fill="#FFFFFF",
+    font=("Inter", 15 * -1)
+)
+
+canvas.create_text(
+    12.0,
+    480.0,
+    anchor="nw",
+    text="FIXED",
+    fill="#FFFFFF",
+    font=("Inter", 15 * -1)
+)
+
+button_image_1 = PhotoImage(
+    file=relative_to_assets("button_1.png"))
+button_1 = Button(
+    image=button_image_1,
+    borderwidth=0,
+    highlightthickness=0,
+    command=create_change_log,
+    relief="flat"
+)
+button_1.place(
+    x=282.0,
+    y=410.0,
+    width=118.0,
+    height=29.0
+)
+
+button_image_2 = PhotoImage(
+    file=relative_to_assets("button_2.png"))
+button_2 = Button(
+    image=button_image_2,
+    borderwidth=0,
+    highlightthickness=0,
+    command=copy_to_clipboard,
+    relief="flat"
+)
+button_2.place(
+    x=460.0,
+    y=410.0,
+    width=118.0,
+    height=29.0
+)
+
+button_image_3 = PhotoImage(
+    file=relative_to_assets("button_3.png"))
+button_3 = Button(
+    image=button_image_3,
+    borderwidth=0,
+    highlightthickness=0,
+    command=post_to_discord_webhook,
+    relief="flat"
+)
+button_3.place(
+    x=638.0,
+    y=410.0,
+    width=118.0,
+    height=29.0
+)
+
+entry_image_6 = PhotoImage(
+    file=relative_to_assets("entry_6.png"))
+entry_bg_6 = canvas.create_image(
+    519.0,
+    516.5,
+    image=entry_image_6
+)
+entry_6 = Entry(
+    bd=0,
+    bg="#40444B",
+    fg="white",
+    highlightthickness=0
+)
+entry_6.place(
+    x=282.0,
+    y=499.0,
+    width=474.0,
+    height=33.0
+)
+
+canvas.create_text(
+    282.0,
+    480.0,
+    anchor="nw",
+    text="Discord Webhook URL",
+    fill="#FFFFFF",
+    font=("Inter", 15 * -1)
+)
+window.resizable(False, False)
 webhook_url = load_webhook_url()
-webhook_entry.insert(tk.END, webhook_url)
-
-# Create the button to update the change log
-update_button = ttk.Button(root, text="Update Change Log", command=create_change_log)
-update_button.grid(row=9, column=0, columnspan=2, pady=(10, 0), sticky="nsew")
-
-# Create the button to copy the change log to clipboard
-copy_button = ttk.Button(root, text="Copy to Clipboard", command=copy_to_clipboard)
-copy_button.grid(row=10, column=0, columnspan=2, pady=(5, 0), sticky="nsew")
-
-# Create the button to post the change log to Discord
-post_button = ttk.Button(root, text="Post to Discord", command=post_to_discord_webhook)
-post_button.grid(row=11, column=0, columnspan=2, pady=(5, 10), sticky="nsew")
-
-root.mainloop()
+entry_6.insert(tk.END, webhook_url)
+window.mainloop()
